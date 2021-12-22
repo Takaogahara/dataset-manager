@@ -1,8 +1,16 @@
+"""
+Streamlit structure
+
+v - 1.0.0
+"""
+
+
+from rdkit.Chem.PandasTools import LoadSDF
 import streamlit as st
 import pandas as pd
 
 
-def file_download(dataframe, file_name: str, disp_text: str, sidebar=True):
+def csv_download(dataframe, file_name: str, disp_text: str, sidebar=True):
     """Provide dataframe for download
 
     Args:
@@ -19,12 +27,79 @@ def file_download(dataframe, file_name: str, disp_text: str, sidebar=True):
         st.sidebar.download_button(label=disp_text,
                                    data=csv,
                                    file_name=f"{file_name}.csv",
-                                   mime='text/csv',)
+                                   mime="text/csv",)
     else:
         st.download_button(label=disp_text,
                            data=csv,
                            file_name=f"{file_name}.csv",
-                           mime='text/csv',)
+                           mime="text/csv",)
+
+
+def generic_download(file, mime: str, file_name: str,
+                     disp_text: str, sidebar=True):
+    """Provide dataframe for download
+
+    Args:
+        file (): file to be dowloaded
+        file_name (str): Displayed name
+        disp_text (str): Displayed text
+
+    Returns:
+        Download: Download event
+    """
+
+    if sidebar:
+        st.sidebar.download_button(label=disp_text,
+                                   data=file,
+                                   file_name=file_name,
+                                   mime=mime,)
+    else:
+        st.download_button(label=disp_text,
+                           data=file,
+                           file_name=file_name,
+                           mime=mime,)
+
+
+class IO:
+    def sb_csv_read_dataframe(file):
+        """Load UploadedFile CSV into pandas dataframe
+
+        Args:
+            file (UploadedFile): File to be loaded
+
+        Returns:
+            DataFrame: loaded dataframe
+        """
+        with st.sidebar.header("""Please select the CSV delimiter"""):
+            delimiter_dict = {",": ",", ";": ";"}
+            user_delimiter = st.sidebar.selectbox("Choose CSV file delimiter",
+                                                  list(delimiter_dict.keys()))
+            selected_delimiter = delimiter_dict[user_delimiter]
+
+            try:
+                dataframe = pd.read_csv(file, delimiter=selected_delimiter)
+            except pd.errors.ParserError:
+                st.error("Plese check your selected delimiter")
+                dataframe = []
+
+            return dataframe
+
+    def sb_sdf_read_dataframe(file):
+        """Load SDF UploadedFile into pandas dataframe
+
+        Args:
+            file (UploadedFile): File to be loaded
+
+        Returns:
+            DataFrame: loaded dataframe
+        """
+        dataframe = LoadSDF(file, smilesName='SMILES', molColName=None)
+
+        if dataframe.shape == (0, 0):
+            st.error("Plese check your selected data")
+            dataframe = []
+
+        return dataframe
 
 
 class Sidebar:
@@ -55,34 +130,28 @@ class Sidebar:
                 exemple_file = pd.read_csv(
                     example_path, delimiter=example_delimiter)
 
-                file_download(exemple_file, example_name, example_description)
+                csv_download(exemple_file, example_name, example_description)
 
         return uploaded_file
 
-    def sb_read_dataframe(file):
-        """Load UploadedFile CSV into pandas dataframe
+    def sb_sdf_uploader(field_description: str = "Title",
+                        file_description: str = "Description"):
+        """Create uploader element in sidebar for CSV files
 
         Args:
-            file (UploadedFile): File to be loaded
+            field_description (str): Uploader title
+            file_description (str): Uploader description
 
         Returns:
-            DataFrame: loaded dataframe
+            UploadedFile: Uploaded SDF file
         """
-        with st.sidebar.header("""Please select the CSV delimiter"""):
-            delimiter_dict = {',': ',', ';': ';'}
-            user_delimiter = st.sidebar.selectbox('Choose CSV file delimiter',
-                                                  list(delimiter_dict.keys()))
-            selected_delimiter = delimiter_dict[user_delimiter]
+        with st.sidebar.header(field_description):
+            uploaded_file = st.sidebar.file_uploader(file_description,
+                                                     type=["sdf"])
 
-            try:
-                dataframe = pd.read_csv(file, delimiter=selected_delimiter)
-            except pd.errors.ParserError:
-                st.error("Plese check your selected delimiter")
-                dataframe = []
+        return uploaded_file
 
-            return dataframe
-
-    def sb_columns_selection(dataframe, default: list = None):
+    def sb_columns_selector(dataframe, default: list = None):
         """Desired columns selector
 
         Args:
@@ -112,7 +181,7 @@ class Sidebar:
         Returns:
             int: selection number
         """
-        number = st.sidebar.slider('Compute N data',
+        number = st.sidebar.slider("Compute N data",
                                    min_value=10,
                                    max_value=dataframe.shape[0],
                                    value=dataframe.shape[0], step=10)
@@ -128,22 +197,25 @@ class Sidebar:
         Returns:
             bool: Execution flag
         """
-        with st.sidebar.header('Run'):
-            if st.sidebar.button('Execute'):
+        with st.sidebar.header("Run"):
+            if st.sidebar.button("Execute"):
                 execute = not execute
                 return execute
 
-    def sb_download_button(data, name="file",
-                           description="Download data as CSV"):
+    def sb_download_button(data, mime, name="file",
+                           description="Download data"):
         """Create download button on sidebar
 
         Args:
-            data (DataFrame): dataframe to be downloaded
+            data (): data to be downloaded
             name (str): download file name
             description (str): displayed text
 
         """
-        file_download(data, name, description, True)
+        if mime == "text/csv":
+            csv_download(data, name, description, True)
+        else:
+            generic_download(data, mime, name, description, True)
 
 
 class MainStructure:
@@ -168,15 +240,15 @@ class MainStructure:
             df = dataframe.iloc[:display_nbr, :]
             sel_dataframe = df[columns]
 
-            st.subheader('Data selected')
+            st.subheader("Data selected")
             st.write(sel_dataframe)
 
             return sel_dataframe
         except ValueError:
             st.error("""Plase check your data or column selection""")
 
-    def download_button(data, name="file",
-                        description="Download data as CSV"):
+    def download_button(data, mime="text/csv", name="file",
+                        description="Download data"):
         """Create download button on main structure
 
             Args:
@@ -184,4 +256,7 @@ class MainStructure:
             name (str): download file name
             description (str): displayed text
             """
-        file_download(data, name, description, False)
+        if mime == "text/csv":
+            csv_download(data, name, description, False)
+        else:
+            generic_download(data, mime, name, description, False)

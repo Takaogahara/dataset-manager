@@ -1,13 +1,13 @@
 import pandas as pd
 import streamlit as st
 
-from .core.structure import Sidebar, MainStructure
+from .core.structure import Sidebar, MainStructure, IO
 from .core.process import Remover, Calc, Utils
 
 
 @st.cache
 def _init_():
-    path = "./data_cleaner/core/dummy.csv"
+    path = "./csv_handler/core/files/cleaner_dummy.csv"
     sep = ","
     st.session_state['status'] = False
 
@@ -25,15 +25,15 @@ def _process(path, sep):
 
 
 def cleaner():
-    path = "./data_cleaner/core/example_csv.csv"
+    example_path = "./csv_handler/core/files/cleaner_example_csv.csv"
     path, sep = _init_()
     uploaded_file = None
     uploaded_file = Sidebar.sb_csv_uploader("Upload CSV data",
                                             "Upload input CSV file",
-                                            path)
+                                            example_path)
 
     if uploaded_file and not st.session_state['status']:
-        uploaded = Sidebar.sb_read_dataframe(uploaded_file)
+        uploaded = IO.sb_csv_read_dataframe(uploaded_file)
         if st.sidebar.button("Go!"):
             uploaded.to_csv(path, index=False, sep=sep)
             st.session_state['status'] = True
@@ -49,7 +49,7 @@ def cleaner():
         matrix.dataframe(dataframe)
         info.info(f"Dataset shape: {dataframe.shape}")
 
-        MainStructure.download_button(dataframe, "processed_dataframe")
+        MainStructure.download_button(dataframe, name="processed_dataframe")
 
     else:
         MainStructure.awating_upload()

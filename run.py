@@ -1,7 +1,9 @@
 import streamlit as st
 
-from data_cleaner.cleaner_execute import cleaner
-from data_selector.selector_execute import selector
+from csv_handler.cleaner_execute import cleaner
+from csv_handler.selector_execute import selector
+from sdf_handler.sdf_converter import converter
+
 
 # ----------------------------------------------------------------
 
@@ -27,7 +29,8 @@ class MultiApp:
 
 app = MultiApp()
 
-app.add_app("Dataset Selector", selector)
-app.add_app("Dataset Cleaner", cleaner)
+app.add_app("CSV Dataset Selector", selector)
+app.add_app("CSV Dataset Cleaner", cleaner)
+app.add_app("SDF Dataset Converter", converter)
 
 app.run()
