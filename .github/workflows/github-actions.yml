@@ -1,8 +1,0 @@
-- name: Python flake8 Lint
-  uses: py-actions/flake8@v2.0.0
-
-- name: Check WIP
-  uses: embano1/wip@v1.0.0
-
-- name: Unit Testing With Python
-  uses: PrajjawalBanati/Python-actions@0.0.1
