@@ -3,7 +3,6 @@ from .core.structure import Sidebar, MainStructure, IO
 
 
 def _convert(uploaded_file):
-    mime = "application/vnd.stardivision.math"
     dataframe = IO.sb_sdf_read_dataframe(uploaded_file)
 
     try:
