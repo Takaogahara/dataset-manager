@@ -8,8 +8,6 @@ from csv_handler.PaDEL_execute import PaDEL_calc
 
 
 # ----------------------------------------------------------------
-
-
 class MultiApp:
     """Framework for combining multiple streamlit applications."""
 
