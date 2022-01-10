@@ -43,3 +43,5 @@ venv.bak/
 
 *.csv
 !*example_csv.csv
+!*packages.txt
+!*requirements.txt
