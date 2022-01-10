@@ -1,0 +1,5 @@
+channles:
+  - conda-forge
+dependencies:
+ - libgcc=5.2.0
+ - rdkit

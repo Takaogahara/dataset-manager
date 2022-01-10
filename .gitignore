@@ -45,5 +45,3 @@ venv.bak/
 !*example_csv.csv
 !*packages.txt
 !*requirements.txt
-!*conda_channels.txt
-!*conda.txt
