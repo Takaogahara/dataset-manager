@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 
 from .core.structure import Sidebar, MainStructure, IO
-from .core.process import Remover, Calc, Utils
+from .core.process import Remover, Calc, Utils, Standardize
 
 
 @st.cache
@@ -17,6 +17,7 @@ def _init_():
 def _process(path, sep):
 
     _ = Remover.remove_nan(path, sep)
+    _ = Standardize.standardize_smiles(path, sep)
     _ = Remover.filter_elements(path, sep)
     _ = Remover.select_strains(path, sep)
     _ = Calc.select_threshold(path, sep)

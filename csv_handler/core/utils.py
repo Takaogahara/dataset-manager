@@ -83,9 +83,13 @@ def convert_threshold(df, threshold_value, threshold_unit, threshold_columns):
             if current_value < threshold_value:
                 converted_activity[value_index] = "Active"
 
-        df["Converted Value"] = converted_values
-        df["Converted Units"] = converted_units
-        df["Activity"] = converted_activity
+        df = df.assign(converted_values=converted_values)
+        df = df.assign(converted_units=converted_units)
+        df = df.assign(converted_activity=converted_activity)
+
+        df = df.rename(columns={"converted_values": "Converted Value",
+                                "converted_units": "Converted Units",
+                                "converted_activity": "Activity"})
 
     elif threshold_unit == "nM":
         for current_index, current_unit in enumerate(list_units):

@@ -1,6 +1,7 @@
 import pandas as pd
 from rdkit import Chem
 import streamlit as st
+from chembl_structure_pipeline import standardizer
 
 from .utils import convert_threshold, process_duplicates
 
@@ -221,9 +222,9 @@ class Calc:
             dataframe = pd.read_csv(path, delimiter=delimiter)
             shape = dataframe.shape[0]
 
-            text = ("Select: Molecule ID, Activity, "
+            text = ("Select: Smiles, Activity, "
                     "Converted Value (IN THIS ORDER)")
-            default = ["Molecule ChEMBL ID", "Activity", "Converted Value"]
+            default = ["Smiles", "Activity", "Converted Value"]
 
             try:
                 index_id = list(dataframe.columns)
@@ -234,6 +235,42 @@ class Calc:
 
             if st.button("Check duplicates"):
                 dataframe = process_duplicates(dataframe, selected_duplicates)
+
+                counter = shape - dataframe.shape[0]
+                st.write(f"Rows removed: {counter}")
+                dataframe.to_csv(path, index=False, sep=delimiter)
+                return True
+
+            else:
+                return False
+
+
+class Standardize:
+    def standardize_smiles(path: str, delimiter=","):
+        with st.expander("Standardize SMILES"):
+            st.markdown("""###### Standardize SMILES""")
+            dataframe = pd.read_csv(path, delimiter=delimiter)
+            shape = dataframe.shape[0]
+
+            try:
+                smiles_column = st.selectbox("Smiles Column", ["Smiles"])
+                smiles = dataframe[str(smiles_column)]
+            except KeyError:
+                df_columns = list(dataframe.columns)
+                smiles_column = st.selectbox("Smiles Column", df_columns)
+                smiles = dataframe[str(smiles_column)]
+
+            if st.button("Standardize SMILES"):
+
+                std_list = []
+                for current_smiles in smiles:
+                    mol = Chem.MolFromSmiles(str(current_smiles))
+                    std_mol = standardizer.standardize_mol(mol)
+                    parent_mol, _ = standardizer.get_parent_mol(std_mol)
+
+                    std_list.append(Chem.MolToSmiles((parent_mol)))
+
+                dataframe[str(smiles_column)] = std_list
 
                 counter = shape - dataframe.shape[0]
                 st.write(f"Rows removed: {counter}")
