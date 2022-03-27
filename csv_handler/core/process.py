@@ -244,6 +244,41 @@ class Calc:
             else:
                 return False
 
+    def check_duplicates_simple(path: str, delimiter=","):
+        """check and process duplicated data
+
+        Args:
+            path (str): path to csv file
+            delimiter (str, optional): cvs file delimiter. Defaults to ",".
+
+        Returns:
+            bool: execution flag
+        """
+        with st.expander("Check duplicates (simple)"):
+            st.markdown("""###### Check duplicates (simple)""")
+            dataframe = pd.read_csv(path, delimiter=delimiter)
+            shape = dataframe.shape[0]
+
+            try:
+                duplicate_col = [st.selectbox("Select Smiles column",
+                                              ["Smiles"])]
+
+            except KeyError:
+                index_id = list(dataframe.columns)
+                duplicate_col = [st.selectbox(
+                    "Select Smiles column", index_id)]
+
+            if st.button("Check simple duplicates"):
+                dataframe = process_duplicates(dataframe, duplicate_col)
+
+                counter = shape - dataframe.shape[0]
+                st.write(f"Rows removed: {counter}")
+                dataframe.to_csv(path, index=False, sep=delimiter)
+                return True
+
+            else:
+                return False
+
 
 class Standardize:
     def standardize_smiles(path: str, delimiter=","):

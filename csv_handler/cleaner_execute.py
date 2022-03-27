@@ -21,6 +21,7 @@ def _process(path, sep):
     _ = Remover.filter_elements(path, sep)
     _ = Remover.select_strains(path, sep)
     _ = Calc.select_threshold(path, sep)
+    _ = Calc.check_duplicates_simple(path, sep)
     _ = Calc.check_duplicates(path, sep)
     _ = Utils.shuffle_rows(path, sep)
 

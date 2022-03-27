@@ -17,38 +17,43 @@ def _get_duplicates(seq):
 def process_duplicates(df, columns):
     remove_idx = []
 
-    list_id = list(df[columns[0]])
-    list_activity = list(df[columns[1]])
-    list_values = list(df[columns[2]])
+    if len(columns) == 1:
+        df = df.drop_duplicates(subset=columns, keep="first")
 
-    duplicated = _get_duplicates(list_id)
+    else:
+        list_id = list(df[columns[0]])
+        list_activity = list(df[columns[1]])
+        list_values = list(df[columns[2]])
 
-    if len(duplicated) >= 1:
-        for mol_id in duplicated.keys():
-            temp_activity = []
-            temp_value = []
+        duplicated = _get_duplicates(list_id)
 
-            for list_idx in duplicated[mol_id]:
-                temp_activity.append(list_activity[list_idx])
-                temp_value.append(list_values[list_idx])
+        if len(duplicated) >= 1:
+            for mol_id in duplicated.keys():
+                temp_activity = []
+                temp_value = []
 
-            # Entry has same activity?
-            if len(_get_duplicates(temp_activity)) != 1:
-                for activity_iter in duplicated[mol_id]:
-                    remove_idx.append(activity_iter)
+                for list_idx in duplicated[mol_id]:
+                    temp_activity.append(list_activity[list_idx])
+                    temp_value.append(list_values[list_idx])
 
-            # Get entry with higher value
-            max_index = duplicated[mol_id][temp_value.index(max(temp_value))]
-            for value_iter in duplicated[mol_id]:
-                if value_iter != max_index:
-                    remove_idx.append(value_iter)
+                # Entry has same activity?
+                if len(_get_duplicates(temp_activity)) != 1:
+                    for activity_iter in duplicated[mol_id]:
+                        remove_idx.append(activity_iter)
 
-        # Select keeped entrys
-        keep_flag = [True] * len(df)
-        for remove_iter in remove_idx:
-            keep_flag[remove_iter] = False
+                # Get entry with higher value
+                max_index = duplicated[mol_id][temp_value.index(
+                    max(temp_value))]
+                for value_iter in duplicated[mol_id]:
+                    if value_iter != max_index:
+                        remove_idx.append(value_iter)
 
-        df = df[keep_flag]
+            # Select keeped entrys
+            keep_flag = [True] * len(df)
+            for remove_iter in remove_idx:
+                keep_flag[remove_iter] = False
+
+            df = df[keep_flag]
 
     return df
 
