@@ -1,6 +1,7 @@
 import pandas as pd
 from rdkit import Chem
 import streamlit as st
+from tqdm import tqdm
 from chembl_structure_pipeline import standardizer
 
 from .utils import convert_threshold, process_duplicates
@@ -298,7 +299,7 @@ class Standardize:
             if st.button("Standardize SMILES"):
 
                 std_list = []
-                for current_smiles in smiles:
+                for current_smiles in tqdm(smiles):
                     mol = Chem.MolFromSmiles(str(current_smiles))
                     std_mol = standardizer.standardize_mol(mol)
                     parent_mol, _ = standardizer.get_parent_mol(std_mol)
@@ -306,6 +307,10 @@ class Standardize:
                     std_list.append(Chem.MolToSmiles((parent_mol)))
 
                 dataframe[str(smiles_column)] = std_list
+
+                for index, row in dataframe.iterrows():
+                    if "." in row["Smiles"]:
+                        dataframe.drop(index, inplace=True)
 
                 counter = shape - dataframe.shape[0]
                 st.write(f"Rows removed: {counter}")

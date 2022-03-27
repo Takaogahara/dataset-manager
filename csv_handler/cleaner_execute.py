@@ -34,6 +34,9 @@ def cleaner():
                                             "Upload input CSV file",
                                             example_path)
 
+    if 'status' not in st.session_state:
+        st.session_state['status'] = False
+
     if uploaded_file and not st.session_state['status']:
         uploaded = IO.sb_csv_read_dataframe(uploaded_file)
         if st.sidebar.button("Go!"):
