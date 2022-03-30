@@ -45,3 +45,8 @@ venv.bak/
 !*example_csv.csv
 !*packages.txt
 !*requirements.txt
+
+/temp
+/data
+/mlruns
+/configs

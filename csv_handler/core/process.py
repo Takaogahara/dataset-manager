@@ -301,15 +301,33 @@ class Standardize:
                 std_list = []
                 for current_smiles in tqdm(smiles):
                     mol = Chem.MolFromSmiles(str(current_smiles))
-                    std_mol = standardizer.standardize_mol(mol)
-                    parent_mol, _ = standardizer.get_parent_mol(std_mol)
 
-                    std_list.append(Chem.MolToSmiles((parent_mol)))
+                    if mol is not None:
+                        std_mol = standardizer.standardize_mol(mol)
+                        parent_mol, _ = standardizer.get_parent_mol(std_mol)
+
+                        if len(parent_mol.GetAtoms()) < 2:
+                            std_list.append("remove")
+
+                        else:
+                            check = Chem.MolFromSmiles(
+                                Chem.MolToSmiles((parent_mol)))
+
+                            if check is not None:
+                                std_list.append(Chem.MolToSmiles((parent_mol)))
+                            else:
+                                std_list.append("remove")
+
+                    else:
+                        std_list.append(Chem.MolToSmiles(parent_mol))
 
                 dataframe[str(smiles_column)] = std_list
 
                 for index, row in dataframe.iterrows():
                     if "." in row["Smiles"]:
+                        dataframe.drop(index, inplace=True)
+
+                    elif "remove" in row["Smiles"]:
                         dataframe.drop(index, inplace=True)
 
                 counter = shape - dataframe.shape[0]
