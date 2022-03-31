@@ -47,12 +47,41 @@ class Remover:
             st.markdown("""###### Remove NaN""")
             dataframe = pd.read_csv(path, delimiter=delimiter)
 
-            if st.button("Remove"):
+            if st.button("Remove NaN"):
                 drop = dataframe.dropna(inplace=False)
 
                 counter = dataframe.shape[0] - drop.shape[0]
                 st.write(f"Rows removed: {counter}")
                 drop.to_csv(path, index=False, sep=delimiter)
+                return True
+
+            else:
+                return False
+
+    def remove_outlier(path: str, delimiter=","):
+        """Remove outliers
+
+        Args:
+            path (str): path to csv file
+            delimiter (str, optional): cvs file delimiter. Defaults to ",".
+
+        Returns:
+            bool: execution flag
+        """
+        with st.expander("Remove Outliers"):
+            st.markdown("""###### Remove Outliers""")
+            dataframe = pd.read_csv(path, delimiter=delimiter)
+
+            if st.button("Remove Outliers"):
+                shape_init = dataframe.shape[0]
+
+                dataframe = dataframe[(dataframe["Labels"] > dataframe[
+                    "Labels"].quantile(0.1)) & (dataframe[
+                        "Labels"] < dataframe["Labels"].quantile(0.9))]
+
+                counter = shape_init - dataframe.shape[0]
+                st.write(f"Rows removed: {counter}")
+                dataframe.to_csv(path, index=False, sep=delimiter)
                 return True
 
             else:

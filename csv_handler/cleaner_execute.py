@@ -17,6 +17,7 @@ def _init_():
 def _process(path, sep):
 
     _ = Remover.remove_nan(path, sep)
+    _ = Remover.remove_outlier(path, sep)
     _ = Standardize.standardize_smiles(path, sep)
     _ = Remover.filter_elements(path, sep)
     _ = Remover.select_strains(path, sep)
