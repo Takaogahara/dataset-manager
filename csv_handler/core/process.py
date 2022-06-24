@@ -329,7 +329,8 @@ class Standardize:
 
                 std_list = []
                 for current_smiles in tqdm(smiles):
-                    mol = Chem.MolFromSmiles(str(current_smiles))
+                    mol = Chem.MolFromSmiles(str(current_smiles),
+                                             sanitize=True)
 
                     if mol is not None:
                         std_mol = standardizer.standardize_mol(mol)
